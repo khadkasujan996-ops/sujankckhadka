@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>A Little Question 💖</title>
+<style>
+  :root{
+    --pink-50:#fff0f5;
+    --pink-100:#ffe1ec;
+    --pink-300:#ffaecb;
+    --pink-500:#ff6f9c;
+    --pink-600:#ef4f82;
+    --rose-700:#c2386a;
+    --cream:#fff8f3;
+    --ink:#4a2233;
+    --gold:#f4c95d;
+    --shadow: 0 18px 40px -12px rgba(194,56,106,.35);
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:
+      radial-gradient(circle at 15% 20%, var(--pink-100), transparent 55%),
+      radial-gradient(circle at 85% 80%, var(--pink-50), transparent 55%),
+      linear-gradient(160deg, var(--cream), #ffeef3 60%, var(--pink-50));
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-start;
+    padding: 32px 16px 80px;
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* floating decorative hearts */
+  .floaty{
+    position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .floaty span{
+    position:absolute; bottom:-10%; font-size: 22px; opacity:.55;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp{
+    0%{ transform: translateY(0) rotate(0deg); opacity:0; }
+    10%{ opacity:.6; }
+    90%{ opacity:.5; }
+    100%{ transform: translateY(-110vh) rotate(25deg); opacity:0; }
+  }
+
+  .stage{
+    width:100%;
+    max-width: 460px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    position:relative;
+    z-index:1;
+  }
+
+  .card{
+    background: #fff;
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    padding: 36px 28px 32px;
+    width:100%;
+    border: 1px solid var(--pink-100);
+    animation: pop .45s cubic-bezier(.2,.9,.3,1.2);
+  }
+  @keyframes pop{
+    from{ transform: scale(.9) translateY(10px); opacity:0; }
+    to{ transform: scale(1) translateY(0); opacity:1; }
+  }
+
+  .step{ display:none; }
+  .step.active{ display:flex; flex-direction:column; align-items:center; }
+
+  .hero-emoji{
+    font-size: 64px;
+    line-height:1;
+    margin-bottom: 14px;
+    filter: drop-shadow(0 6px 10px rgba(194,56,106,.25));
+  }
+  .hero-img{
+    width: 100%;
+    max-width: 280px;
+    border-radius: 22px;
+    margin-bottom: 18px;
+    object-fit: cover;
+    box-shadow: 0 10px 24px -8px rgba(194,56,106,.4);
+  }
+
+  h1{
+    font-size: clamp(22px, 6vw, 28px);
+    margin: 0 0 8px;
+    color: var(--rose-700);
+    font-weight: 800;
+    line-height:1.25;
+  }
+  p.sub{
+    margin: 0 0 22px;
+    color:#7a5163;
+    font-size:15px;
+  }
+
+  .btn-row{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap;
+    justify-content:center;
+    width:100%;
+    position:relative;
+    min-height: 56px;
+  }
+
+  button{
+    font-family:inherit;
+    border:none;
+    cursor:pointer;
+    border-radius: 999px;
+    font-weight:700;
+    font-size:16px;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+
+  .btn-yes{
+    background: linear-gradient(135deg, var(--pink-500), var(--rose-700));
+    color:#fff;
+    padding: 14px 30px;
+    box-shadow: 0 10px 22px -6px rgba(194,56,106,.55);
+  }
+  .btn-yes:hover{ transform: translateY(-2px) scale(1.03); }
+
+  .btn-no{
+    background: #fff;
+    color: var(--rose-700);
+    border: 2px solid var(--pink-300);
+    padding: 14px 26px;
+    position:relative;
+  }
+
+  .btn-secondary{
+    background: linear-gradient(135deg, var(--pink-500), var(--rose-700));
+    color:#fff;
+    padding: 14px 32px;
+    box-shadow: 0 10px 22px -6px rgba(194,56,106,.55);
+    margin-top: 10px;
+  }
+  .btn-secondary:hover{ transform: translateY(-2px) scale(1.03); }
+
+  /* food grid */
+  .food-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+    width:100%;
+    margin-top: 4px;
+  }
+  .food-card{
+    background: var(--pink-50);
+    border: 2px solid transparent;
+    border-radius: 18px;
+    padding: 12px 10px 14px;
+    cursor:pointer;
+    transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .food-card:hover{ transform: translateY(-3px); box-shadow: 0 10px 18px -8px rgba(194,56,106,.3); }
+  .food-card.selected{ border-color: var(--pink-500); background:#fff; }
+  .food-card img{
+    width:100%;
+    height:84px;
+    object-fit:cover;
+    border-radius:12px;
+    margin-bottom:8px;
+  }
+  .food-card .food-name{
+    font-weight:700;
+    font-size:14px;
+    color: var(--rose-700);
+  }
+
+  /* date/time inputs */
+  .field-group{
+    width:100%;
+    text-align:left;
+    margin-bottom: 16px;
+  }
+  .field-group label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color: var(--rose-700);
+    margin-bottom:6px;
+  }
+  .field-group input{
+    width:100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 2px solid var(--pink-100);
+    font-size:15px;
+    font-family:inherit;
+    color: var(--ink);
+    background: var(--pink-50);
+  }
+  .field-group input:focus{
+    outline:none;
+    border-color: var(--pink-500);
+  }
+
+  .progress-dots{
+    display:flex;
+    gap:8px;
+    margin-bottom: 22px;
+  }
+  .progress-dots span{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--pink-100);
+    transition: background .2s ease, transform .2s ease;
+  }
+  .progress-dots span.active{ background: var(--pink-500); transform: scale(1.3); }
+
+  .confetti-burst{
+    font-size: 38px;
+    margin-bottom: 6px;
+    letter-spacing: 6px;
+  }
+
+  /* Settings gear */
+  .settings-fab{
+    position: fixed;
+    bottom: 18px;
+    right: 18px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--pink-300);
+    color: var(--rose-700);
+    font-size: 22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: var(--shadow);
+    z-index: 50;
+    cursor:pointer;
+  }
+  .settings-fab:hover{ transform: scale(1.07); }
+
+  .settings-overlay{
+    position: fixed;
+    inset:0;
+    background: rgba(74,34,51,.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index: 100;
+    padding: 16px;
+  }
+  .settings-overlay.open{ display:flex; }
+
+  .settings-panel{
+    background:#fff;
+    border-radius: 22px;
+    max-width: 480px;
+    width:100%;
+    max-height: 88vh;
+    overflow-y:auto;
+    padding: 24px 22px 22px;
+    box-shadow: 0 30px 60px -20px rgba(0,0,0,.4);
+  }
+  .settings-panel h2{
+    margin:0 0 4px;
+    color: var(--rose-700);
+    font-size:20px;
+  }
+  .settings-panel p.hint{
+    margin: 0 0 18px;
+    font-size:13px;
+    color:#8a6675;
+  }
+  .settings-panel label{
+    display:block;
+    font-size:13px;
+    font-weight:700;
+    color: var(--rose-700);
+    margin: 14px 0 5px;
+  }
+  .settings-panel label.first{ margin-top:0; }
+  .settings-panel input, .settings-panel textarea{
+    width:100%;
+    padding: 9px 12px;
+    border-radius: 10px;
+    border: 1.5px solid var(--pink-100);
+    font-family:inherit;
+    font-size:14px;
+    background: var(--pink-50);
+    color: var(--ink);
+  }
+  .settings-panel input:focus, .settings-panel textarea:focus{
+    outline:none;
+    border-color: var(--pink-500);
+  }
+  .settings-section-title{
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+    color: var(--pink-500);
+    font-weight:800;
+    margin: 22px 0 4px;
+    border-top: 1px solid var(--pink-100);
+    padding-top:16px;
+  }
+  .settings-section-title.notop{ border-top:none; padding-top:0; margin-top:0; }
+
+  .food-edit-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:8px;
+    align-items:flex-start;
+  }
+  .food-edit-row input{ flex:1; }
+  .food-edit-row input.name-input{ flex: 0 0 100px; }
+  .food-edit-row button{
+    background: var(--pink-100);
+    color: var(--rose-700);
+    border-radius:10px;
+    width:34px; height:34px;
+    font-size:16px;
+    flex-shrink:0;
+  }
+
+  .settings-actions{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+    position: sticky;
+    bottom:0;
+    background:#fff;
+    padding-top: 12px;
+  }
+  .settings-actions button{
+    flex:1;
+    padding: 11px;
+    border-radius: 12px;
+    font-size:14px;
+  }
+  .btn-save{ background: linear-gradient(135deg, var(--pink-500), var(--rose-700)); color:#fff; }
+  .btn-close{ background: var(--pink-50); color: var(--rose-700); border:1.5px solid var(--pink-100); }
+  .btn-add-food{
+    background:#fff;
+    border: 1.5px dashed var(--pink-300);
+    color: var(--rose-700);
+    width:100%;
+    padding: 9px;
+    border-radius: 10px;
+    font-size:13px;
+    margin-top:4px;
+  }
+
+  .url-note{
+    font-size:12px;
+    color:#8a6675;
+    background: var(--pink-50);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-top:6px;
+    line-height:1.5;
+  }
+  .url-note code{
+    background:#fff;
+    padding:1px 5px;
+    border-radius:5px;
+    font-size:11px;
+  }
+
+  @media (max-width:380px){
+    .food-card img{ height:70px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floaty" id="floaty"></div>
+
+<div class="stage">
+
+  <div class="card">
+
+    <!-- progress dots -->
+    <div class="progress-dots" id="progressDots">
+      <span data-step="1"></span>
+      <span data-step="2"></span>
+      <span data-step="3"></span>
+      <span data-step="4"></span>
+      <span data-step="5"></span>
+    </div>
+
+    <!-- STEP 1: The Question -->
+    <div class="step active" data-step="1">
+      <img class="hero-img" id="img1" src="" alt="" style="display:none;">
+      <div class="hero-emoji" id="emoji1">💌</div>
+      <h1 id="question1Text"></h1>
+      <p class="sub" id="sub1Text"></p>
+      <div class="btn-row" id="btnRow1">
+        <button class="btn-yes" id="yesBtn1"></button>
+        <button class="btn-no" id="noBtn1"></button>
+      </div>
+    </div>
+
+    <!-- STEP 2: Confirm -->
+    <div class="step" data-step="2">
+      <img class="hero-img" id="img2" src="" alt="" style="display:none;">
+      <div class="hero-emoji" id="emoji2">🥰</div>
+      <h1 id="question2Text"></h1>
+      <button class="btn-secondary" id="confirmBtn"></button>
+    </div>
+
+    <!-- STEP 3: Date & Time -->
+    <div class="step" data-step="3">
+      <img class="hero-img" id="img3" src="" alt="" style="display:none;">
+      <div class="hero-emoji" id="emoji3">🗓️</div>
+      <h1 id="question3Text"></h1>
+      <p class="sub" id="sub3Text"></p>
+
+      <div class="field-group">
+        <label for="dateInput">Select date</label>
+        <input type="date" id="dateInput">
+      </div>
+      <div class="field-group">
+        <label for="timeInput">Select time</label>
+        <input type="time" id="timeInput">
+      </div>
+
+      <button class="btn-secondary" id="setDateBtn"></button>
+    </div>
+
+    <!-- STEP 4: Food choice -->
+    <div class="step" data-step="4">
+      <img class="hero-img" id="img4" src="" alt="" style="display:none;">
+      <div class="hero-emoji" id="emoji4">🍽️</div>
+      <h1 id="question4Text"></h1>
+      <div class="food-grid" id="foodGrid"></div>
+    </div>
+
+    <!-- STEP 5: Final -->
+    <div class="step" data-step="5">
+      <div class="confetti-burst">✨🎀💕🎀✨</div>
+      <img class="hero-img" id="img5" src="" alt="" style="display:none;">
+      <div class="hero-emoji" id="emoji5">💍</div>
+      <h1 id="finalText"></h1>
+      <p class="sub" id="finalSubText"></p>
+    </div>
+
+  </div>
+</div>
+
+<!-- Settings FAB -->
+<button class="settings-fab" id="settingsFab" title="Customize this page">⚙️</button>
+
+<!-- Settings Overlay -->
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-panel">
+    <h2>Customize your page 💖</h2>
+    <p class="hint">Change the text, images, and food options below. Click "Save & Apply" to update the page instantly — no coding needed.</p>
+
+    <div class="settings-section-title notop">Step 1 — The Question</div>
+    <label class="first">Page title (browser tab)</label>
+    <input type="text" id="cfg_pageTitle">
+    <label>Heading</label>
+    <textarea id="cfg_question1" rows="2"></textarea>
+    <label>Subtext (optional)</label>
+    <input type="text" id="cfg_sub1">
+    <label>Emoji (used if no image set)</label>
+    <input type="text" id="cfg_emoji1">
+    <label>Image URL (optional — overrides emoji)</label>
+    <input type="text" id="cfg_img1" placeholder="https://...">
+    <label>"Yes" button text</label>
+    <input type="text" id="cfg_yesText">
+    <label>"No" button text</label>
+    <input type="text" id="cfg_noText">
+
+    <div class="settings-section-title">Step 2 — Confirmation</div>
+    <label class="first">Heading</label>
+    <input type="text" id="cfg_question2">
+    <label>Emoji</label>
+    <input type="text" id="cfg_emoji2">
+    <label>Image URL (optional)</label>
+    <input type="text" id="cfg_img2" placeholder="https://...">
+    <label>Button text</label>
+    <input type="text" id="cfg_confirmText">
+
+    <div class="settings-section-title">Step 3 — Date & Time</div>
+    <label class="first">Heading</label>
+    <input type="text" id="cfg_question3">
+    <label>Subtext</label>
+    <input type="text" id="cfg_sub3">
+    <label>Emoji</label>
+    <input type="text" id="cfg_emoji3">
+    <label>Image URL (optional)</label>
+    <input type="text" id="cfg_img3" placeholder="https://...">
+    <label>Button text</label>
+    <input type="text" id="cfg_setDateText">
+
+    <div class="settings-section-title">Step 4 — Food Choices</div>
+    <label class="first">Heading</label>
+    <input type="text" id="cfg_question4">
+    <label>Emoji (used if no image set)</label>
+    <input type="text" id="cfg_emoji4">
+    <label>Image URL (optional)</label>
+    <input type="text" id="cfg_img4" placeholder="https://...">
+    <div id="foodEditList"></div>
+    <button class="btn-add-food" id="addFoodBtn">+ Add another food option</button>
+
+    <div class="settings-section-title">Step 5 — Final Message</div>
+    <label class="first">Heading</label>
+    <input type="text" id="cfg_finalText">
+    <label>Subtext</label>
+    <input type="text" id="cfg_finalSub">
+    <label>Emoji</label>
+    <input type="text" id="cfg_emoji5">
+    <label>Image URL (optional)</label>
+    <input type="text" id="cfg_img5" placeholder="https://...">
+
+    <div class="settings-section-title">Sharing</div>
+    <div class="url-note">
+      Your settings are saved in this browser only. To send this page to someone with your edits included, click <strong>"Copy shareable link"</strong> below — it bundles your changes right into the URL.
+    </div>
+    <button class="btn-add-food" id="copyLinkBtn" style="margin-top:10px;">🔗 Copy shareable link with my edits</button>
+    <button class="btn-add-food" id="resetBtn" style="margin-top:8px;">↺ Reset to original defaults</button>
+
+    <div class="settings-actions">
+      <button class="btn-close" id="closeSettingsBtn">Close</button>
+      <button class="btn-save" id="saveSettingsBtn">Save &amp; Apply</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ====================================================================
+   DEFAULT CONTENT — change anything here, or use the ⚙️ settings panel
+==================================================================== */
+const DEFAULTS = {
+  pageTitle: "A Little Question 💖",
+  emoji1: "💌",
+  img1: "",
+  question1: "Will you go on a date with me? 🌹✨",
+  sub1: "",
+  yesText: "Yes! 💖",
+  noText: "No 😢",
+
+  emoji2: "🥰",
+  img2: "",
+  question2: "Really, truly? You'll come? 🥰👉👈",
+  confirmText: "Okay! 💖",
+
+  emoji3: "🗓️",
+  img3: "",
+  question3: "When are you free? 🗓️⏰",
+  sub3: "Pick whatever day and time suits you best:",
+  setDateText: "Set the Date 🎯",
+
+  emoji4: "🍽️",
+  img4: "",
+  question4: "What would you like to eat? 🍔🍛",
+  foods: [
+    { name: "Biryani 🍛",     img: "https://images.unsplash.com/photo-1633945274405-b6c8069047b0?w=400" },
+    { name: "Chowmein 🍜",    img: "https://images.unsplash.com/photo-1585032226651-759b368d7246?w=400" },
+    { name: "Pizza 🍕",       img: "https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400" },
+    { name: "Burger 🍔",      img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400" }
+  ],
+
+  emoji5: "💍",
+  img5: "",
+  finalText: "It's settled, see you soon! 😍❤️",
+  finalSub: ""
+};
+
+/* ====================================================================
+   STATE LOADING — URL params override localStorage, which overrides defaults
+==================================================================== */
+function loadState(){
+  let state = JSON.parse(JSON.stringify(DEFAULTS));
+
+  try {
+    const saved = localStorage.getItem('proposalPageConfig');
+    if (saved) state = Object.assign(state, JSON.parse(saved));
+  } catch(e) {}
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const c = params.get('cfg');
+    if (c) {
+      const decoded = JSON.parse(decodeURIComponent(atob(c)));
+      state = Object.assign(state, decoded);
+    }
+  } catch(e) {}
+
+  if (!state.foods || !Array.isArray(state.foods) || state.foods.length === 0) {
+    state.foods = DEFAULTS.foods;
+  }
+
+  return state;
+}
+
+let CONFIG = loadState();
+
+/* ====================================================================
+   RENDER PAGE FROM CONFIG
+==================================================================== */
+function setImgOrEmoji(imgId, emojiId, imgUrl, emojiVal){
+  const imgEl = document.getElementById(imgId);
+  const emojiEl = document.getElementById(emojiId);
+  if (imgUrl && imgUrl.trim()) {
+    imgEl.src = imgUrl.trim();
+    imgEl.style.display = "block";
+    emojiEl.style.display = "none";
+  } else {
+    imgEl.style.display = "none";
+    emojiEl.style.display = "block";
+    emojiEl.textContent = emojiVal || "";
+  }
+}
+
+function renderPage(){
+  document.title = CONFIG.pageTitle || DEFAULTS.pageTitle;
+
+  setImgOrEmoji('img1','emoji1', CONFIG.img1, CONFIG.emoji1);
+  document.getElementById('question1Text').textContent = CONFIG.question1;
+  document.getElementById('sub1Text').textContent = CONFIG.sub1 || "";
+  document.getElementById('sub1Text').style.display = CONFIG.sub1 ? "block" : "none";
+  document.getElementById('yesBtn1').textContent = CONFIG.yesText;
+  document.getElementById('noBtn1').textContent = CONFIG.noText;
+
+  setImgOrEmoji('img2','emoji2', CONFIG.img2, CONFIG.emoji2);
+  document.getElementById('question2Text').textContent = CONFIG.question2;
+  document.getElementById('confirmBtn').textContent = CONFIG.confirmText;
+
+  setImgOrEmoji('img3','emoji3', CONFIG.img3, CONFIG.emoji3);
+  document.getElementById('question3Text').textContent = CONFIG.question3;
+  document.getElementById('sub3Text').textContent = CONFIG.sub3 || "";
+  document.getElementById('sub3Text').style.display = CONFIG.sub3 ? "block" : "none";
+  document.getElementById('setDateBtn').textContent = CONFIG.setDateText;
+
+  setImgOrEmoji('img4','emoji4', CONFIG.img4, CONFIG.emoji4);
+  document.getElementById('question4Text').textContent = CONFIG.question4;
+  renderFoodGrid();
+
+  setImgOrEmoji('img5','emoji5', CONFIG.img5, CONFIG.emoji5);
+  document.getElementById('finalText').textContent = CONFIG.finalText;
+  document.getElementById('finalSubText').textContent = CONFIG.finalSub || "";
+  document.getElementById('finalSubText').style.display = CONFIG.finalSub ? "block" : "none";
+}
+
+function renderFoodGrid(){
+  const grid = document.getElementById('foodGrid');
+  grid.innerHTML = "";
+  CONFIG.foods.forEach((food, idx) => {
+    const card = document.createElement('div');
+    card.className = 'food-card';
+    card.dataset.idx = idx;
+    card.innerHTML = `
+      <img src="${food.img}" alt="${food.name}">
+      <div class="food-name">${food.name}</div>
+    `;
+    card.addEventListener('click', () => selectFood(idx));
+    grid.appendChild(card);
+  });
+}
+
+function selectFood(idx){
+  document.querySelectorAll('.food-card').forEach(c => c.classList.remove('selected'));
+  document.querySelector(`.food-card[data-idx="${idx}"]`).classList.add('selected');
+  setTimeout(() => goToStep(5), 450);
+}
+
+/* ====================================================================
+   STEP NAVIGATION
+==================================================================== */
+function goToStep(n){
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.querySelector(`.step[data-step="${n}"]`).classList.add('active');
+  document.querySelectorAll('#progressDots span').forEach(d => {
+    d.classList.toggle('active', parseInt(d.dataset.step) === n);
+  });
+}
+
+document.getElementById('yesBtn1').addEventListener('click', () => goToStep(2));
+document.getElementById('confirmBtn').addEventListener('click', () => goToStep(3));
+document.getElementById('setDateBtn').addEventListener('click', () => goToStep(4));
+
+/* Playful dodging "No" button */
+const noBtn = document.getElementById('noBtn1');
+const btnRow1 = document.getElementById('btnRow1');
+let dodgeCount = 0;
+noBtn.addEventListener('mouseenter', dodgeNo);
+noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); dodgeNo(); }, {passive:false});
+function dodgeNo(){
+  dodgeCount++;
+  const rowRect = btnRow1.getBoundingClientRect();
+  const maxX = Math.max(rowRect.width - 110, 40);
+  const randX = Math.random() * maxX - maxX/2;
+  const randY = (Math.random() * 30) - 15;
+  noBtn.style.position = 'relative';
+  noBtn.style.transform = `translate(${randX}px, ${randY}px)`;
+  if (dodgeCount > 3) {
+    noBtn.style.transform += ' scale(0.85)';
+  }
+}
+
+/* ====================================================================
+   FLOATING DECORATIONS
+==================================================================== */
+function spawnFloaty(){
+  const container = document.getElementById('floaty');
+  const symbols = ['💕','✨','🌸','💖','🎀'];
+  const el = document.createElement('span');
+  el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+  el.style.left = Math.random()*100 + '%';
+  const duration = 8 + Math.random()*8;
+  el.style.animationDuration = duration + 's';
+  el.style.fontSize = (16 + Math.random()*14) + 'px';
+  container.appendChild(el);
+  setTimeout(() => el.remove(), duration*1000 + 500);
+}
+setInterval(spawnFloaty, 900);
+for (let i=0;i<6;i++) setTimeout(spawnFloaty, i*300);
+
+/* ====================================================================
+   SETTINGS PANEL
+==================================================================== */
+const settingsFab = document.getElementById('settingsFab');
+const settingsOverlay = document.getElementById('settingsOverlay');
+
+settingsFab.addEventListener('click', openSettings);
+document.getElementById('closeSettingsBtn').addEventListener('click', closeSettings);
+settingsOverlay.addEventListener('click', (e) => { if (e.target === settingsOverlay) closeSettings(); });
+
+function openSettings(){
+  fillSettingsForm();
+  settingsOverlay.classList.add('open');
+}
+function closeSettings(){
+  settingsOverlay.classList.remove('open');
+}
+
+function fillSettingsForm(){
+  document.getElementById('cfg_pageTitle').value = CONFIG.pageTitle || "";
+  document.getElementById('cfg_question1').value = CONFIG.question1 || "";
+  document.getElementById('cfg_sub1').value = CONFIG.sub1 || "";
+  document.getElementById('cfg_emoji1').value = CONFIG.emoji1 || "";
+  document.getElementById('cfg_img1').value = CONFIG.img1 || "";
+  document.getElementById('cfg_yesText').value = CONFIG.yesText || "";
+  document.getElementById('cfg_noText').value = CONFIG.noText || "";
+
+  document.getElementById('cfg_question2').value = CONFIG.question2 || "";
+  document.getElementById('cfg_emoji2').value = CONFIG.emoji2 || "";
+  document.getElementById('cfg_img2').value = CONFIG.img2 || "";
+  document.getElementById('cfg_confirmText').value = CONFIG.confirmText || "";
+
+  document.getElementById('cfg_question3').value = CONFIG.question3 || "";
+  document.getElementById('cfg_sub3').value = CONFIG.sub3 || "";
+  document.getElementById('cfg_emoji3').value = CONFIG.emoji3 || "";
+  document.getElementById('cfg_img3').value = CONFIG.img3 || "";
+  document.getElementById('cfg_setDateText').value = CONFIG.setDateText || "";
+
+  document.getElementById('cfg_question4').value = CONFIG.question4 || "";
+  document.getElementById('cfg_emoji4').value = CONFIG.emoji4 || "";
+  document.getElementById('cfg_img4').value = CONFIG.img4 || "";
+  renderFoodEditList();
+
+  document.getElementById('cfg_finalText').value = CONFIG.finalText || "";
+  document.getElementById('cfg_finalSub').value = CONFIG.finalSub || "";
+  document.getElementById('cfg_emoji5').value = CONFIG.emoji5 || "";
+  document.getElementById('cfg_img5').value = CONFIG.img5 || "";
+}
+
+function renderFoodEditList(){
+  const list = document.getElementById('foodEditList');
+  list.innerHTML = "";
+  CONFIG.foods.forEach((food, idx) => {
+    const row = document.createElement('div');
+    row.className = 'food-edit-row';
+    row.innerHTML = `
+      <input class="name-input" type="text" placeholder="Name" value="${escapeAttr(food.name)}" data-food-idx="${idx}" data-field="name">
+      <input type="text" placeholder="Image URL" value="${escapeAttr(food.img)}" data-food-idx="${idx}" data-field="img">
+      <button type="button" data-remove-idx="${idx}" title="Remove">✕</button>
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('button[data-remove-idx]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.removeIdx);
+      tempFoods.splice(idx, 1);
+      CONFIG.foods = tempFoods;
+      renderFoodEditList();
+    });
+  });
+}
+
+function escapeAttr(str){
+  return (str || "").replace(/"/g, '&quot;');
+}
+
+let tempFoods = JSON.parse(JSON.stringify(CONFIG.foods));
+
+document.getElementById('addFoodBtn').addEventListener('click', () => {
+  tempFoods.push({ name: "New Item 🍽️", img: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=400" });
+  CONFIG.foods = tempFoods;
+  renderFoodEditList();
+});
+
+document.getElementById('saveSettingsBtn').addEventListener('click', () => {
+  // read all food rows live
+  const foodRows = document.querySelectorAll('#foodEditList .food-edit-row');
+  const newFoods = [];
+  foodRows.forEach(row => {
+    const nameInput = row.querySelector('[data-field="name"]');
+    const imgInput = row.querySelector('[data-field="img"]');
+    newFoods.push({ name: nameInput.value || "Item", img: imgInput.value || "" });
+  });
+
+  CONFIG = {
+    pageTitle: document.getElementById('cfg_pageTitle').value,
+    emoji1: document.getElementById('cfg_emoji1').value,
+    img1: document.getElementById('cfg_img1').value,
+    question1: document.getElementById('cfg_question1').value,
+    sub1: document.getElementById('cfg_sub1').value,
+    yesText: document.getElementById('cfg_yesText').value,
+    noText: document.getElementById('cfg_noText').value,
+
+    emoji2: document.getElementById('cfg_emoji2').value,
+    img2: document.getElementById('cfg_img2').value,
+    question2: document.getElementById('cfg_question2').value,
+    confirmText: document.getElementById('cfg_confirmText').value,
+
+    emoji3: document.getElementById('cfg_emoji3').value,
+    img3: document.getElementById('cfg_img3').value,
+    question3: document.getElementById('cfg_question3').value,
+    sub3: document.getElementById('cfg_sub3').value,
+    setDateText: document.getElementById('cfg_setDateText').value,
+
+    emoji4: document.getElementById('cfg_emoji4').value,
+    img4: document.getElementById('cfg_img4').value,
+    question4: document.getElementById('cfg_question4').value,
+    foods: newFoods.length ? newFoods : DEFAULTS.foods,
+
+    emoji5: document.getElementById('cfg_emoji5').value,
+    img5: document.getElementById('cfg_img5').value,
+    finalText: document.getElementById('cfg_finalText').value,
+    finalSub: document.getElementById('cfg_finalSub').value
+  };
+
+  tempFoods = JSON.parse(JSON.stringify(CONFIG.foods));
+
+  try { localStorage.setItem('proposalPageConfig', JSON.stringify(CONFIG)); } catch(e) {}
+
+  renderPage();
+  goToStep(1);
+  closeSettings();
+});
+
+document.getElementById('resetBtn').addEventListener('click', () => {
+  if (!confirm("Reset everything back to the original defaults? This clears your saved edits.")) return;
+  CONFIG = JSON.parse(JSON.stringify(DEFAULTS));
+  tempFoods = JSON.parse(JSON.stringify(CONFIG.foods));
+  try { localStorage.removeItem('proposalPageConfig'); } catch(e) {}
+  renderPage();
+  fillSettingsForm();
+  goToStep(1);
+});
+
+document.getElementById('copyLinkBtn').addEventListener('click', () => {
+  try {
+    const encoded = btoa(encodeURIComponent(JSON.stringify(CONFIG)));
+    const url = window.location.origin + window.location.pathname + '?cfg=' + encoded;
+    navigator.clipboard.writeText(url).then(() => {
+      const btn = document.getElementById('copyLinkBtn');
+      const original = btn.textContent;
+      btn.textContent = "✓ Link copied!";
+      setTimeout(() => { btn.textContent = original; }, 1800);
+    }).catch(() => {
+      prompt("Copy this link:", url);
+    });
+  } catch(e) {
+    alert("Could not generate link — try shortening your image URLs or text.");
+  }
+});
+
+/* ====================================================================
+   INITIAL RENDER
+==================================================================== */
+renderPage();
+</script>
+</body>
+</html>
